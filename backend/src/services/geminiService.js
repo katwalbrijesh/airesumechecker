@@ -137,6 +137,8 @@ function buildPrompt({ rawText, targetRole }) {
 
 async function callGemini(prompt) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${env.geminiModel}:generateContent`;
+    console.log("CALLING GEMINI URL:", url);
+    console.log("KEY LENGTH:", env.geminiApiKey?.length);
 
     const response = await fetch(url, {
         method: "POST",
@@ -154,11 +156,13 @@ async function callGemini(prompt) {
         }),
     });
 
+    console.log("GEMINI RESPONSE STATUS:", response.status);
+
     if (!response.ok) {
         const errBody = await response.text();
         throw new Error(`${response.status} - ${errBody}`);
     }
-
+    
     const result = await response.json();
     const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error("Empty response from Gemini");
