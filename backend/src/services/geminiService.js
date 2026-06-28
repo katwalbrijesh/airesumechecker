@@ -4,10 +4,7 @@ const { z } = require("zod");
 const env = require("../config/env");
 const ApiError = require("../utils/ApiError");
 
-  console.log("DEBUG KEY:", JSON.stringify(env.geminiApiKey));
-const ai = env.geminiApiKey
-  ? new GoogleGenAI({ apiKey: env.geminiApiKey })
-  : null;
+
 
 const responseSchema = {
   type: Type.OBJECT,
@@ -139,18 +136,31 @@ function buildPrompt({ rawText, targetRole }) {
 }
 
 async function callGemini(prompt) {
-    const result = await ai.models.generateContent({
-        model: env.geminiModel,
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        config: {
-            responseMimeType: "application/json",
-            responseSchema,
-            temperature: 0.4,
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${env.geminiModel}:generateContent`;
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "x-goog-api-key": env.geminiApiKey,
+            "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema,
+                temperature: 0.4,
+            },
+        }),
     });
 
-    const text =
-        typeof result.text === "function" ? result.text() : result.text;
+    if (!response.ok) {
+        const errBody = await response.text();
+        throw new Error(`${response.status} - ${errBody}`);
+    }
+
+    const result = await response.json();
+    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error("Empty response from Gemini");
 
     return {
@@ -160,7 +170,7 @@ async function callGemini(prompt) {
 }
 
 async function analyzeResume({ rawText, targetRole }) {
-  if (!ai) {
+  if (!env.geminiApiKey) {
     throw ApiError.internal("GEMINI_API_KEY is not configured on the server.");
   }
 
