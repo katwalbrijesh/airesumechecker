@@ -4,6 +4,7 @@ const { z } = require("zod");
 const env = require("../config/env");
 const ApiError = require("../utils/ApiError");
 
+  console.log("DEBUG KEY:", JSON.stringify(env.geminiApiKey));
 const ai = env.geminiApiKey
   ? new GoogleGenAI({ apiKey: env.geminiApiKey })
   : null;
