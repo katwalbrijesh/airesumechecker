@@ -37,11 +37,15 @@ export default function Pricing() {
   const handleCheckout = async () => {
     setLoading(true);
     try {
-    const res = await fetch("/api/payment/create-checkout-session", {
-     method: "POST",
-     headers: { "Content-Type": "application/json" },
-       }
-      );
+    const apiBase = import.meta.env.DEV
+  ? ""
+  : "https://airesumechecker-backend.onrender.com";
+
+    const res = await fetch(`${apiBase}/api/payment/create-checkout-session`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    })
+    ;
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
