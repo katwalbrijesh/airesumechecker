@@ -49,13 +49,13 @@ export function Navbar() {
 
           <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
             {NAV_LINKS.map((l) => (
-              <Link
+              <a
                 key={l.href}
-                to={l.href}
+                href={l.href}
                 className="px-3.5 py-1.5 rounded-full text-[13px] font-medium text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)] transition-colors"
               >
                 {l.label}
-              </Link>
+              </a>
             ))}
           </nav>
 
@@ -86,7 +86,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {open && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -94,14 +93,14 @@ export function Navbar() {
             className="md:hidden border-t border-[var(--border)] px-3 py-3 space-y-1"
           >
             {NAV_LINKS.map((l) => (
-              <Link
+              <a
                 key={l.href}
-                to={l.href}
+                href={l.href}
                 onClick={() => setOpen(false)}
                 className="block px-3 py-2 rounded-xl text-sm font-medium text-[var(--ink)] hover:bg-[var(--surface-2)]"
               >
                 {l.label}
-              </Link>
+              </a>
             ))}
             <Link
               to="/login"
