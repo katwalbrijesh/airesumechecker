@@ -14,6 +14,7 @@ const dashboardRouter = require("./routes/dashboard");
 const insightsRouter = require("./routes/insights");
 const versionsRouter = require("./routes/versions");
 const historyRouter = require("./routes/history");
+const paymentRouter = require("./routes/payment");
 
 const app = express();
 
@@ -36,7 +37,7 @@ app.use("/api/dashboard", dashboardRouter);
 app.use("/api/insights", insightsRouter);
 app.use("/api/versions", versionsRouter);
 app.use("/api/history", historyRouter);
-
+app.use("/api/payment", paymentRouter);
 app.use(notFound);
 app.use(errorHandler);
 

@@ -1,3 +1,4 @@
+import PaymentSuccess from "@/pages/PaymentSuccess";
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import Dashboard from "@/pages/Dashboard";
@@ -13,6 +14,7 @@ import Versions from "@/pages/Versions";
 import History from "@/pages/History";
 import Settings from "@/pages/Settings";
 import { useAuth } from "@/context/AuthContext";
+import Pricing from "@/components/Pricing";
 
 function ProtectedShell() {
   const { user, loading } = useAuth();
@@ -31,6 +33,8 @@ export const router = createBrowserRouter([
   { path: "/", element: <Landing /> },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
+  { path: "/payment-success", element: <PaymentSuccess /> },
+  { path: "/pricing", element: <Pricing /> },
   {
     path: "/",
     element: <ProtectedShell />,

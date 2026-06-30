@@ -1,0 +1,266 @@
+#pricing {
+  background: #ffffff;
+}
+
+.pricing-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 100px 24px 80px;
+  text-align: center;
+}
+
+.pricing-label {
+  display: inline-block;
+  background: #f0fdf4;
+  color: #26673e;
+  border: 1px solid #bbf7d0;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  margin-bottom: 20px;
+}
+
+.pricing-title {
+  font-size: 44px;
+  font-weight: 800;
+  color: #0a0a0a;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.pricing-green {
+  color: #1f5834;
+}
+
+.pricing-subtitle {
+  font-size: 17px;
+  color: #6b7280;
+  margin-bottom: 56px;
+}
+
+
+.plan-box {
+  display: flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  overflow: hidden;
+  text-align: left;
+  background: #fafafa;
+}
+
+.plan-box-left {
+  flex: 1;
+  padding: 48px 40px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.plan-tag {
+  display: inline-block;
+  background: #0a0a0a;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.plan-count {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+
+.plan-name {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0a0a0a;
+  margin-bottom: 10px;
+}
+
+.plan-desc {
+  font-size: 15px;
+  color: #6b7280;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.plan-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.plan-price {
+  font-size: 64px;
+  font-weight: 800;
+  color: #0a0a0a;
+  line-height: 1;
+}
+
+.plan-period {
+  font-size: 18px;
+  color: #6b7280;
+}
+
+.plan-note {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 36px;
+}
+
+.plan-cta {
+  display: inline-block;
+  background: #206138;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px 32px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.plan-cta:hover {
+  opacity: 0.85;
+}
+
+.plan-box-right {
+  flex: 1;
+  padding: 48px 40px;
+}
+
+.whats-included {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #9ca3af;
+  margin-bottom: 24px;
+}
+
+.plan-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.plan-list li {
+  font-size: 15px;
+  color: #374151;
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-list li:last-child {
+  border-bottom: none;
+}
+
+
+.faq-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 24px 100px;
+  display: flex;
+  gap: 80px;
+}
+
+.faq-left {
+  flex: 0 0 320px;
+}
+
+.faq-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+
+.faq-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: #0a0a0a;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.faq-sub {
+  font-size: 15px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.faq-right {
+  flex: 1;
+}
+
+.faq-item {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  color: #0a0a0a;
+  text-align: left;
+  gap: 16px;
+}
+
+.faq-icon {
+  font-size: 22px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.faq-answer {
+  font-size: 15px;
+  color: #6b7280;
+  line-height: 1.7;
+  padding-bottom: 20px;
+  margin: 0;
+}
+
+
+@media (max-width: 768px) {
+  .plan-box {
+    flex-direction: column;
+  }
+
+  .plan-box-left {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .faq-wrapper {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .faq-left {
+    flex: unset;
+  }
+
+  .pricing-title {
+    font-size: 32px;
+  }
+
+  .plan-price {
+    font-size: 48px;
+  }
+}

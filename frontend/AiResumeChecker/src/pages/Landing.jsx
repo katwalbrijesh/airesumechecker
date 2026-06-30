@@ -1,3 +1,4 @@
+import Pricing from "@/components/Pricing";
 import { useEffect } from "react";
 import { Navbar } from "@/components/landing/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -28,6 +29,7 @@ export default function Landing() {
         <HowItWorks />
         <DashboardPreviewSection />
         <BenefitsSection />
+        <Pricing />
         <TestimonialsSection />
         <CTASection />
       </main>
