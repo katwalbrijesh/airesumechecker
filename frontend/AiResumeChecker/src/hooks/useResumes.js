@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { resumesApi } from "@/api/resumes";
 import { dashboardKey } from "@/hooks/useDashboard";
 import { useToast } from "@/context/UIContext";
+import { useAuth } from "@/context/AuthContext";
 
 export const resumeKeys = {
   all: ["resumes"],
@@ -71,6 +72,7 @@ export function useUploadResume() {
 export function useAnalyzeResume(id) {
   const qc = useQueryClient();
   const toast = useToast();
+  const { refresh } = useAuth();
   return useMutation({
     mutationFn: (body) => resumesApi.analyze(id, body),
     onSuccess: (data) => {
@@ -82,6 +84,7 @@ export function useAnalyzeResume(id) {
           queryKey: resumeKeys.versionAnalysis(id, data.analysis.versionId),
         });
       }
+      refresh();
       toast.success(
         "Analysis complete",
         `ATS score ${data?.analysis?.atsScore ?? "—"} / 100`

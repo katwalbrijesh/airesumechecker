@@ -15,6 +15,7 @@ const insightsRouter = require("./routes/insights");
 const versionsRouter = require("./routes/versions");
 const historyRouter = require("./routes/history");
 const paymentRouter = require("./routes/payment");
+const adminRouter = require("./routes/admin");
 
 const app = express();
 
@@ -25,7 +26,13 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json({ limit: "1mb" }));
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/payment/webhook") {
+    express.raw({ type: "application/json" })(req, res, next);
+  } else {
+    express.json({ limit: "1mb" })(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(cookieParser());
 if (!env.isProd) app.use(morgan("dev"));
@@ -38,6 +45,7 @@ app.use("/api/insights", insightsRouter);
 app.use("/api/versions", versionsRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/payment", paymentRouter);
+app.use("/api/admin", adminRouter);
 app.use(notFound);
 app.use(errorHandler);
 

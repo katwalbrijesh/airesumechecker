@@ -13,10 +13,25 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
     passwordHash: { type: String, required: true, select: false },
-    name: { type: String, required: true, trim: true, maxlength: 80 },
-  },
-  { timestamps: true }
-);
+      name: { type: String, required: true, trim: true, maxlength: 80 },
+
+      plan: { type: String, enum: ["free", "pro"], default: "free" },
+      isAdmin: { type: Boolean, default: false },
+      
+      stripeCustomerId: { type: String, default: null },
+      stripeSubscriptionId: { type: String, default: null },
+      subscriptionStatus: { type: String, default: null },
+      currentPeriodEnd: { type: Date, default: null },
+      subscribedAt: { type: Date, default: null },
+
+      analysisCount: { type: Number, default: 0 },
+      analysisCycleStart: { type: Date, default: Date.now },
+
+      resetPasswordTokenHash: { type: String, default: null },
+      resetPasswordExpires: { type: Date, default: null },
+    },
+  {  timestamps: true }
+    );
 
 userSchema.statics.hashPassword = function (plain) {
   return bcrypt.hash(plain, 12);

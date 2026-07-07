@@ -10,6 +10,7 @@ const { uploadPdf } = require("../middleware/upload");
 
 const Resume = require("../models/Resume");
 const ResumeVersion = require("../models/ResumeVersion");
+const User = require("../models/User");
 
 const { analyzeLimiter } = require("../middleware/rateLimit");
 const Analysis = require("../models/Analysis");
@@ -141,7 +142,33 @@ router.post(
   validate(idParam, "params"),
   validate(analyzeBody),
   asyncHandler(async (req, res) => {
+    console.log("!!!!! ANALYZE ROUTE HIT !!!!!");
     const resume = await loadOwnedResume(req);
+
+    // ---- Free plan usage limit ----
+    const FREE_LIMIT = 2;
+    const user = req.user;
+
+    const now = new Date();
+    const cycleStart = user.analysisCycleStart || now;
+    const daysSinceCycleStart = (now - cycleStart) / (1000 * 60 * 60 * 24);
+
+    // Reset the counter if it's been 30+ days since the cycle started
+    if (daysSinceCycleStart >= 30) {
+      await User.updateOne(
+        { _id: user._id },
+        { $set: { analysisCount: 0, analysisCycleStart: now } }
+      );
+      user.analysisCount = 0;
+      user.analysisCycleStart = now;
+    }
+    console.log("DEBUG - plan:", user.plan, "count:", user.analysisCount, "email:", user.email);
+    if ((user.plan ?? "free") !== "pro" && (user.analysisCount ?? 0) >= FREE_LIMIT) {
+      throw ApiError.badRequest(
+        "You've reached your free plan limit of 2 resume checks this month. Upgrade to Pro for unlimited checks."
+      );
+    }
+    // ---- End limit check ----
 
     const versionId = req.body.versionId || resume.currentVersionId;
     if (!versionId) throw ApiError.badRequest("No version to analyze");
@@ -172,6 +199,15 @@ router.post(
 
     version.latestAnalysisId = saved._id;
     await version.save();
+
+    // ---- Increment usage count for free users ----
+    if (user.plan !== "pro") {
+      await User.updateOne(
+        { _id: user._id },
+        { $inc: { analysisCount: 1 } }
+      );
+    }
+    // ---- End increment ----
 
     res.status(201).json({ analysis: saved });
   })
@@ -214,18 +250,72 @@ const rewriteBody = z.object({
   label: z.string().trim().max(40).optional(),
 });
 
-function applyRewritesToText(rawText, rewrites) {
-  let result = rawText;
-  for (const r of rewrites) {
-    if (!r.original || !r.rewritten) continue;
-    const idx = result.indexOf(r.original);
-    if (idx >= 0) {
-      result = result.slice(0, idx) + r.rewritten + result.slice(idx + r.original.length);
+function normalizeForMatch(str) {
+  return str.replace(/\s+/g, " ").trim();
+}
+
+function buildNormalizedMap(text) {
+  let normalized = "";
+  const map = [];
+  let lastWasSpace = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (/\s/.test(ch)) {
+      if (!lastWasSpace && normalized.length > 0) {
+        normalized += " ";
+        map.push(i);
+        lastWasSpace = true;
+      }
     } else {
-      // Fallback: append as a strengthened alternative line
-      result += `\n${r.rewritten}`;
+      normalized += ch;
+      map.push(i);
+      lastWasSpace = false;
     }
   }
+
+  if (normalized.endsWith(" ")) {
+    normalized = normalized.slice(0, -1);
+    map.pop();
+  }
+
+  return { normalized, map };
+}
+
+function applyRewritesToText(rawText, rewrites) {
+  let result = rawText;
+
+  for (const r of rewrites) {
+    if (!r.original || !r.rewritten) continue;
+
+    // 1. Try exact match first (fastest, most common case)
+    const idx = result.indexOf(r.original);
+    if (idx >= 0) {
+      result =
+        result.slice(0, idx) + r.rewritten + result.slice(idx + r.original.length);
+      continue;
+    }
+
+    // 2. Whitespace-tolerant match: normalize both the full text and the
+    //    target phrase, find the phrase's position in the normalized text,
+    //    then map that position back to the exact real offsets in the
+    //    original text. This only ever replaces one contiguous, correctly
+    //    located span — never a guessed word-to-word range.
+    const { normalized, map } = buildNormalizedMap(result);
+    const normalizedOriginal = normalizeForMatch(r.original);
+    const matchIdx = normalized.indexOf(normalizedOriginal);
+
+    if (matchIdx >= 0 && map.length > 0) {
+      const startOrig = map[matchIdx];
+      const endOrig = map[matchIdx + normalizedOriginal.length - 1] + 1;
+      result = result.slice(0, startOrig) + r.rewritten + result.slice(endOrig);
+      continue;
+    }
+
+    // No safe match found — skip rather than guess. The structured-sections
+    // patch (patchBulletsInSections) remains the fallback for this case.
+  }
+
   return result;
 }
 

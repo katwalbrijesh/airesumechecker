@@ -1,7 +1,11 @@
 import axios from "axios";
 
+const baseURL = import.meta.env.DEV
+  ? "http://localhost:5000/api"
+  : "https://airesumechecker-backend.onrender.com/api";
+
 export const apiClient = axios.create({
-  baseURL: "https://airesumechecker-backend.onrender.com/api",
+  baseURL,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });

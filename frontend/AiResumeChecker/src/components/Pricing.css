@@ -40,7 +40,6 @@
   margin-bottom: 56px;
 }
 
-
 .plan-box {
   display: flex;
   border: 1px solid #e5e7eb;
@@ -163,7 +162,6 @@
   border-bottom: none;
 }
 
-
 .faq-wrapper {
   max-width: 1100px;
   margin: 0 auto;
@@ -236,7 +234,6 @@
   margin: 0;
 }
 
-
 @media (max-width: 768px) {
   .plan-box {
     flex-direction: column;
@@ -263,4 +260,128 @@
   .plan-price {
     font-size: 48px;
   }
+}
+
+/* ── Coupon ── */
+.coupon-wrapper {
+  margin-top: 24px;
+  background: #f8fdf9;
+  border: 1.5px dashed #eff4f1;
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+
+.coupon-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.coupon-tag-icon {
+  font-size: 14px;
+}
+
+.coupon-label-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #000000;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.coupon-row {
+  display: flex;
+  gap: 8px;
+}
+
+.coupon-input {
+  flex: 1;
+  padding: 11px 14px;
+  border: 1.5px solid #1d2e1b;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: #ffffff;
+  color: #0a0a0a;
+}
+
+.coupon-input::placeholder {
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: #9ca3af;
+}
+
+.coupon-input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(33, 168, 82, 0.12);
+}
+
+.coupon-input:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.coupon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  padding: 11px 20px;
+  background: linear-gradient(135deg, #154f29 0%, #24b057 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  letter-spacing: 0.3px;
+}
+
+.coupon-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.coupon-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.coupon-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.coupon-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.coupon-msg {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.coupon-msg--success {
+  color: #10ed61;
+}
+
+.coupon-msg--error {
+  color: #dc2626;
 }

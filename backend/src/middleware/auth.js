@@ -10,10 +10,23 @@ async function requireAuth(req, res, next) {
 
     const payload = verifyToken(token);
     const user = await User.findById(payload.sub);
-    if (!user) throw ApiError.unauthorized("Session no longer valid");
+if (!user) throw ApiError.unauthorized("Session no longer valid");
 
-    req.user = user;
-    next();
+// Lazily downgrade expired coupon-based Pro access
+if (
+  user.plan === "pro" &&
+  user.subscriptionStatus === "coupon" &&
+  user.currentPeriodEnd &&
+  user.currentPeriodEnd < new Date()
+) {
+  user.plan = "free";
+  user.subscriptionStatus = "expired";
+  await user.save();
+}
+
+req.user = user;
+next();
+
   } catch (err) {
     if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
       return next(ApiError.unauthorized("Invalid or expired session"));

@@ -1,3 +1,5 @@
+import { useSearchParams } from "react-router-dom";
+import { paymentApi } from "@/api/payment";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -17,20 +19,30 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
 
   async function onSubmit(e) {
-    e.preventDefault();
-    setErr("");
-    setLoading(true);
-    try {
-      await login(form);
-      nav("/dashboard");
-    } catch (e) {
-      setErr(e.message || "Login failed");
-    } finally {
-      setLoading(false);
+  e.preventDefault();
+  setErr("");
+  setLoading(true);
+  try {
+    await login(form);
+
+    if (searchParams.get("redirect") === "checkout") {
+      const data = await paymentApi.createCheckoutSession();
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
     }
+
+    nav("/dashboard");
+  } catch (e) {
+    setErr(e.message || "Login failed");
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <AuthShell
@@ -78,14 +90,14 @@ export default function Login() {
             onChange={(v) => setForm({ ...form, password: v })}
             placeholder="••••••••"
             icon={Lock}
-            extra={
-              <button
-                type="button"
-                className="text-xs text-[var(--accent-strong)] font-semibold hover:underline"
+           extra={
+             <Link
+             to="/forgot-password"
+               className="text-xs text-[var(--accent-strong)] font-semibold hover:underline"
               >
-                Forgot?
-              </button>
-            }
+                  Forgot?
+            </Link>
+  }
           />
 
           <AuthErrorBanner>{err}</AuthErrorBanner>

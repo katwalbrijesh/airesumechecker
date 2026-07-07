@@ -1,3 +1,6 @@
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { paymentApi } from "@/api/payment";
 import { useState } from "react";
 import "./Pricing.css";
 
@@ -32,21 +35,28 @@ export default function Pricing() {
   const [openIndex, setOpenIndex] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponMessage, setCouponMessage] = useState(null);
+  const [couponSuccess, setCouponSuccess] = useState(false);
+  const [appliedDiscountCode, setAppliedDiscountCode] = useState(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const toggle = (i) => setOpenIndex(openIndex === i ? null : i);
 
+  const apiBase = import.meta.env.DEV
+    ? ""
+    : "https://airesumechecker-backend.onrender.com";
+
   const handleCheckout = async () => {
+    if (!user) {
+      navigate("/login?redirect=checkout");
+      return;
+    }
     setLoading(true);
     try {
-    const apiBase = import.meta.env.DEV
-  ? ""
-  : "https://airesumechecker-backend.onrender.com";
-
-    const res = await fetch(`${apiBase}/api/payment/create-checkout-session`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    })
-    ;
-      const data = await res.json();
+      const data = await paymentApi.createCheckoutSession(appliedDiscountCode);
       if (data.url) {
         window.location.href = data.url;
       } else {
@@ -57,6 +67,38 @@ export default function Pricing() {
       console.error(err);
       alert("Could not start checkout. Please try again.");
       setLoading(false);
+    }
+  };
+
+  const handleCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponMessage(null);
+    try {
+      const res = await fetch(`${apiBase}/api/payment/redeem-coupon`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ code: couponCode.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setCouponSuccess(true);
+        setCouponMessage(data.message);
+      if (data.type === "discount") {
+        setAppliedDiscountCode(data.code);
+       }
+        setCouponCode("");
+      } else {
+        setCouponSuccess(false);
+        setCouponMessage(typeof data.error === "string" ? data.error : data.error?.message || data.message || "Invalid coupon code.");
+      }
+    } catch (err) {
+      console.error(err);
+      setCouponSuccess(false);
+      setCouponMessage("Could not apply coupon. Please try again.");
+    } finally {
+      setCouponLoading(false);
     }
   };
 
@@ -84,12 +126,52 @@ export default function Pricing() {
               <span className="plan-price">$19</span>
               <span className="plan-period">/ month</span>
             </div>
-            <p className="plan-note">
-              Cancel anytime. No contracts.
-            </p>
-            <button className="plan-cta" onClick={handleCheckout} disabled={loading}>
+            <p className="plan-note">Cancel anytime. No contracts.</p>
+            <button
+              className="plan-cta"
+              onClick={handleCheckout}
+              disabled={loading}
+            >
               {loading ? "Redirecting..." : "Get started →"}
             </button>
+
+            {/* ── Coupon Input ── */}
+            <div className="coupon-wrapper">
+              <div className="coupon-label-row">
+              
+                <span className="coupon-label-text">Have a coupon code?</span>
+              </div>
+              <div className="coupon-row">
+                <input
+                  type="text"
+                  className="coupon-input"
+                  placeholder="e.g. PROMO2024"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => e.key === "Enter" && handleCoupon()}
+                  disabled={couponLoading || couponSuccess}
+                  maxLength={32}
+                />
+                <button
+                  className="coupon-btn"
+                  onClick={handleCoupon}
+                  disabled={couponLoading || couponSuccess || !couponCode.trim()}
+                >
+                  {couponLoading ? (
+                    <span className="coupon-spinner" />
+                  ) : couponSuccess ? (
+                    "✓ Applied"
+                  ) : (
+                    "Apply"
+                  )}
+                </button>
+              </div>
+              {couponMessage && (
+                <p className={`coupon-msg ${couponSuccess ? "coupon-msg--success" : "coupon-msg--error"}`}>
+                  {couponSuccess ? "🎉 " : "⚠️ "}{couponMessage}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="plan-box-right">
@@ -114,7 +196,8 @@ export default function Pricing() {
           <p className="faq-label">FAQ</p>
           <h2 className="faq-title">Before you decide, read this.</h2>
           <p className="faq-sub">
-            Answers to the questions most people have before upgrading. Still unsure? Drop us an email.
+            Answers to the questions most people have before upgrading. Still
+            unsure? Drop us an email.
           </p>
         </div>
 

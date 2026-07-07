@@ -149,7 +149,7 @@ async function callGemini(prompt) {
             generationConfig: {
                 responseMimeType: "application/json",
                 responseSchema,
-                temperature: 0.4,
+                temperature: 0,
             },
         }),
     });

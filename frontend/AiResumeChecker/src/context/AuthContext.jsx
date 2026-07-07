@@ -10,15 +10,19 @@ export function AuthProvider({ children }) {
   const queryClient = useQueryClient();
 
   const refresh = useCallback(async () => {
-    try {
-      const { user } = await authApi.me();
-      setUser(user);
-    } catch {
+  try {
+    const { user } = await authApi.me();
+    setUser(user);
+  } catch (err) {
+    if (err?.status === 401) {
       setUser(null);
-    } finally {
-      setLoading(false);
     }
-  }, []);
+    // For any other error (network blip, server restart, etc.),
+    // keep whatever auth state we already have instead of wrongly logging out.
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   useEffect(() => {
     refresh();
