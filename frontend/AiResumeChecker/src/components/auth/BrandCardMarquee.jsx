@@ -10,9 +10,8 @@ import {
 import AILogo from "@/components/layout/AILogo";
 
 /**
- * Infinite horizontal marquee of "product preview" cards.
- * Renders the card list twice and slides the row from 0% to -50%
- * so the wrap-around is invisible.
+ * Infinite horizontal marquee carousel of product preview cards
+ * Duplicates card array so wrap-around is seamless
  */
 export function BrandCardMarquee() {
   const CARDS = [
@@ -55,9 +54,9 @@ export function BrandCardMarquee() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
- * Reusable shell — pure white card with consistent shadow + padding
- * ───────────────────────────────────────────────────────────────────────── */
+/**
+ * Reusable card container with white background, rounded corners, and shadow
+ */
 function PreviewCard({ children, width = 300 }) {
   return (
     <div
@@ -69,6 +68,9 @@ function PreviewCard({ children, width = 300 }) {
   );
 }
 
+/**
+ * Small caps label text (gray, uppercase tracking)
+ */
 function Label({ children }) {
   return (
     <div className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
@@ -77,6 +79,9 @@ function Label({ children }) {
   );
 }
 
+/**
+ * Footer with AI logo, subtitle, and version badge
+ */
 function Footer({ subtitle, version }) {
   return (
     <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
@@ -93,9 +98,7 @@ function Footer({ subtitle, version }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
- * Card 1 — ATS Readiness score
- * ───────────────────────────────────────────────────────────────────────── */
+// Card 1: ATS score with progress bar
 function AtsScoreCard() {
   return (
     <PreviewCard width={300}>
@@ -137,11 +140,8 @@ function AtsScoreCard() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
- * Card 2 — Score Evolution mini chart
- * ───────────────────────────────────────────────────────────────────────── */
+// Card 2: Score trend line chart
 function ScoreEvolutionCard() {
-  // points along a 240×60 viewBox
   const points = "0,48 60,36 120,24 180,12 240,4";
   const area = "0,60 0,48 60,36 120,24 180,12 240,4 240,60";
 
@@ -220,9 +220,7 @@ function ScoreEvolutionCard() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
- * Card 3 — Top Issues
- * ───────────────────────────────────────────────────────────────────────── */
+// Card 3: List of issues found with severity badges
 function TopIssuesCard() {
   const issues = [
     { title: "Missing quantified impact", sev: "high" },
@@ -269,9 +267,7 @@ function TopIssuesCard() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
- * Card 4 — Bullet Rewrite
- * ───────────────────────────────────────────────────────────────────────── */
+// Card 4: Before/after bullet rewrite example
 function RewriteCard() {
   return (
     <PreviewCard width={340}>
@@ -313,9 +309,7 @@ function RewriteCard() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
- * Card 5 — Keywords
- * ───────────────────────────────────────────────────────────────────────── */
+// Card 5: Keywords present vs missing
 function KeywordsCard() {
   const present = ["React", "TypeScript", "Node.js", "GraphQL", "AWS"];
   const missing = ["Kubernetes", "gRPC"];
@@ -371,9 +365,7 @@ function KeywordsCard() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
- * Card 6 — Standout Strengths
- * ───────────────────────────────────────────────────────────────────────── */
+// Card 6: Resume strengths highlights
 function StrengthsCard() {
   const strengths = [
     { title: "Quantified leadership impact" },

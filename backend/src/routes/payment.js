@@ -10,7 +10,7 @@ const { requireAuth } = require("../middleware/auth");
 const Coupon = require("../models/Coupon");
 const User = require("../models/User");
 
-// ── Stripe checkout ──────────────────────────────────────────────
+//Stripe checkout
 router.post(
   "/create-checkout-session",
   requireAuth,
@@ -68,7 +68,7 @@ router.post(
   })
 );
 
-// ── Redeem coupon ────────────────────────────────────────────────
+// Redeem coupon
 router.post(
   "/redeem-coupon",
   requireAuth,
@@ -100,7 +100,7 @@ router.post(
       throw ApiError.badRequest("You have already used this coupon");
     }
 
-    // ── Discount coupons: validate only, apply at checkout ──
+    //Discount coupons: validate only, apply at checkout
     if (coupon.type === "discount") {
       return res.json({
         ok: true,
@@ -111,7 +111,7 @@ router.post(
       });
     }
 
-    // ── Full coupons: grant Pro immediately for 1 month ──
+    //Full coupons: grant Pro immediately for 1 month 
     const now = new Date();
     const oneMonthLater = new Date(now);
     oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
@@ -145,7 +145,7 @@ router.post(
   })
 );
 
-// ── Stripe webhook ───────────────────────────────────────────────
+//Stripe webhook
 router.post(
   "/webhook",
   express.raw({ type: "application/json" }),
@@ -221,7 +221,7 @@ router.post(
   })
 );
 
-// ── Verify checkout session (fallback/confirmation for the frontend) ──
+//  Verify checkout session (fallback/confirmation for the frontend)
 router.get(
   "/verify-session",
   requireAuth,
@@ -267,7 +267,7 @@ router.get(
   })
 );
 
-// ── Get current subscription details ────────────────────────────
+// Get current subscription details 
 router.get(
   "/subscription",
   requireAuth,
@@ -289,7 +289,7 @@ router.get(
   })
 );
 
-// ── Create Stripe Customer Portal session ─────────────────────────
+//Create Stripe Customer Portal session
 router.post(
   "/create-portal-session",
   requireAuth,

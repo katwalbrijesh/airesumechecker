@@ -17,7 +17,7 @@ export const pricingPlans = [
   {
     id: 2,
     name: "Pro",
-    price: "$19",
+    price: "$12.99",
     period: "/month",
     description: "Best for job seekers",
     features: [

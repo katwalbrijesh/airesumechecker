@@ -7,7 +7,7 @@ import "./Pricing.css";
 const faqs = [
   {
     question: "How many resumes can I check per month?",
-    answer: "On the Free plan, you get 2 resume checks per month. On the Pro plan ($19/month), you get unlimited resume checks with full AI analysis.",
+    answer: "On the Free plan, you get 2 resume checks per month. On the Pro plan ($12.99/month), you get unlimited resume checks with full AI analysis.",
   },
   {
     question: "What happens when I run out of checks?",
@@ -46,9 +46,9 @@ export default function Pricing() {
   const toggle = (i) => setOpenIndex(openIndex === i ? null : i);
 
   const apiBase = import.meta.env.DEV
-    ? ""
-    : "https://airesumechecker-backend.onrender.com";
-
+  ? ""
+  : import.meta.env.VITE_API_URL;
+  
   const handleCheckout = async () => {
     if (!user) {
       navigate("/login?redirect=checkout");
@@ -123,7 +123,7 @@ export default function Pricing() {
               For job seekers who want an unfair advantage.
             </p>
             <div className="plan-price-row">
-              <span className="plan-price">$19</span>
+              <span className="plan-price">$12.99</span>
               <span className="plan-period">/ month</span>
             </div>
             <p className="plan-note">Cancel anytime. No contracts.</p>
@@ -135,7 +135,7 @@ export default function Pricing() {
               {loading ? "Redirecting..." : "Get started →"}
             </button>
 
-            {/* ── Coupon Input ── */}
+            {/*  Coupon Input */}
             <div className="coupon-wrapper">
               <div className="coupon-label-row">
               

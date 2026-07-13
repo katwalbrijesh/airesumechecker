@@ -17,8 +17,6 @@ const Analysis = require("../models/Analysis");
 const { analyzeResume } = require("../services/geminiService");
 
 const { diffText, summarize } = require("../services/diffService");
-
-
 const { extractText } = require("../services/pdfService");
 const { 
   parseResume: parseStructured,
@@ -33,6 +31,10 @@ const objectIdSchema = z
 
 const idParam = z.object({ id: objectIdSchema });
 
+/**
+ * Load resume and verify ownership by current user
+ * Throws 404 if resume doesn't exist or doesn't belong to user
+ */
 async function loadOwnedResume(req) {
   const resume = await Resume.findOne({
     _id: req.params.id,
@@ -42,12 +44,17 @@ async function loadOwnedResume(req) {
   return resume;
 }
 
+/**
+ * Load resume version by ID
+ * Throws 404 if version doesn't exist or doesn't match resume
+ */
 async function loadVersion(resumeId, versionId) {
   const version = await ResumeVersion.findOne({ _id: versionId, resumeId });
   if (!version) throw ApiError.notFound("Version not found");
   return version;
 }
 
+//  Upload new resume PDF
 router.post(
   "/",
   uploadPdf("file"),
@@ -83,6 +90,7 @@ router.post(
   })
 );
 
+// List all user resumes
 router.get(
   "/",
   asyncHandler(async (req, res) => {
@@ -93,6 +101,7 @@ router.get(
   })
 );
 
+// Get resume and all versions
 router.get(
   "/:id",
   validate(idParam, "params"),
@@ -106,6 +115,7 @@ router.get(
   })
 );
 
+// Get specific resume version
 router.get(
   "/:id/versions/:versionId",
   validate(
@@ -119,6 +129,7 @@ router.get(
   })
 );
 
+// Delete resume and all versions
 router.delete(
   "/:id",
   validate(idParam, "params"),
@@ -136,24 +147,22 @@ const analyzeBody = z.object({
   targetRole: z.string().trim().max(120).optional(),
 });
 
+//  Analyze resume with AI (free limit: 2/month)
 router.post(
   "/:id/analyze",
   analyzeLimiter,
   validate(idParam, "params"),
   validate(analyzeBody),
   asyncHandler(async (req, res) => {
-    console.log("!!!!! ANALYZE ROUTE HIT !!!!!");
     const resume = await loadOwnedResume(req);
-
-    // ---- Free plan usage limit ----
-    const FREE_LIMIT = 2;
     const user = req.user;
 
+    // Enforce free plan limit (2 analyses per 30 days)
+    const FREE_LIMIT = 2;
     const now = new Date();
     const cycleStart = user.analysisCycleStart || now;
     const daysSinceCycleStart = (now - cycleStart) / (1000 * 60 * 60 * 24);
 
-    // Reset the counter if it's been 30+ days since the cycle started
     if (daysSinceCycleStart >= 30) {
       await User.updateOne(
         { _id: user._id },
@@ -162,13 +171,12 @@ router.post(
       user.analysisCount = 0;
       user.analysisCycleStart = now;
     }
-    console.log("DEBUG - plan:", user.plan, "count:", user.analysisCount, "email:", user.email);
+
     if ((user.plan ?? "free") !== "pro" && (user.analysisCount ?? 0) >= FREE_LIMIT) {
       throw ApiError.badRequest(
         "You've reached your free plan limit of 2 resume checks this month. Upgrade to Pro for unlimited checks."
       );
     }
-    // ---- End limit check ----
 
     const versionId = req.body.versionId || resume.currentVersionId;
     if (!versionId) throw ApiError.badRequest("No version to analyze");
@@ -200,19 +208,19 @@ router.post(
     version.latestAnalysisId = saved._id;
     await version.save();
 
-    // ---- Increment usage count for free users ----
+    // Increment usage counter for free plan users
     if (user.plan !== "pro") {
       await User.updateOne(
         { _id: user._id },
         { $inc: { analysisCount: 1 } }
       );
     }
-    // ---- End increment ----
 
     res.status(201).json({ analysis: saved });
   })
 );
 
+// Get all analyses for resume
 router.get(
   "/:id/analyses",
   validate(idParam, "params"),
@@ -225,6 +233,7 @@ router.get(
   })
 );
 
+// Get latest analysis for version
 router.get(
   "/:id/versions/:versionId/analysis",
   validate(
@@ -246,14 +255,21 @@ router.get(
 
 const rewriteBody = z.object({
   analysisId: objectIdSchema,
-  rewriteIds: z.array(objectIdSchema).optional(), // omit/empty = apply all
+  rewriteIds: z.array(objectIdSchema).optional(), // empty = apply all suggested rewrites
   label: z.string().trim().max(40).optional(),
 });
 
+/**
+ * Normalize whitespace to single spaces for consistent string matching
+ */
 function normalizeForMatch(str) {
   return str.replace(/\s+/g, " ").trim();
 }
 
+/**
+ * Build position map from normalized text back to original text
+ * Handles variable whitespace without collapsing original formatting
+ */
 function buildNormalizedMap(text) {
   let normalized = "";
   const map = [];
@@ -282,13 +298,18 @@ function buildNormalizedMap(text) {
   return { normalized, map };
 }
 
+/**
+ * Apply AI-suggested rewrites to resume text
+ * First tries exact match, then whitespace-tolerant match
+ * Never replaces multiple occurrences or guessed positions
+ */
 function applyRewritesToText(rawText, rewrites) {
   let result = rawText;
 
   for (const r of rewrites) {
     if (!r.original || !r.rewritten) continue;
 
-    // 1. Try exact match first (fastest, most common case)
+    // Try exact match first (fastest)
     const idx = result.indexOf(r.original);
     if (idx >= 0) {
       result =
@@ -296,11 +317,7 @@ function applyRewritesToText(rawText, rewrites) {
       continue;
     }
 
-    // 2. Whitespace-tolerant match: normalize both the full text and the
-    //    target phrase, find the phrase's position in the normalized text,
-    //    then map that position back to the exact real offsets in the
-    //    original text. This only ever replaces one contiguous, correctly
-    //    located span — never a guessed word-to-word range.
+    // Whitespace-tolerant match: handles extra spaces/tabs without collapsing them
     const { normalized, map } = buildNormalizedMap(result);
     const normalizedOriginal = normalizeForMatch(r.original);
     const matchIdx = normalized.indexOf(normalizedOriginal);
@@ -311,14 +328,15 @@ function applyRewritesToText(rawText, rewrites) {
       result = result.slice(0, startOrig) + r.rewritten + result.slice(endOrig);
       continue;
     }
-
-    // No safe match found — skip rather than guess. The structured-sections
-    // patch (patchBulletsInSections) remains the fallback for this case.
   }
 
   return result;
 }
 
+/**
+ * Apply rewrites to structured resume sections (fallback safety net)
+ * Ensures V2 doesn't lose bullet points if text parsing fails
+ */
 function patchBulletsInSections(sections, rewrites) {
   if (!sections) return null;
   const cloned = JSON.parse(JSON.stringify(sections));
@@ -334,6 +352,10 @@ function patchBulletsInSections(sections, rewrites) {
   return cloned;
 }
 
+/**
+ * Check if parsed resume sections are empty
+ * Prevents saving versions with no actual content
+ */
 function looksEmpty(sections) {
   if (!sections) return true;
   const b = sections.basics || {};
@@ -346,6 +368,7 @@ function looksEmpty(sections) {
   return !hasIdentity && !hasBody;
 }
 
+// POST /api/resumes/:id/rewrite - Apply AI suggestions to create new version
 router.post(
   "/:id/rewrite",
   validate(idParam, "params"),
@@ -373,9 +396,7 @@ router.post(
 
     const newRaw = applyRewritesToText(baseVersion.rawText, selected);
 
-    // Safety net: pre-build a structured copy from the base version with the
-    // chosen bullets swapped in, so V2 never lands with empty sections even if
-    // Gemini's re-parse fails.
+    // Safety: pre-patch structured sections so V2 never loses bullets
     const patchedFromBase = patchBulletsInSections(
       baseVersion.parsedSections,
       selected
@@ -413,6 +434,7 @@ const diffQuery = z.object({
   mode: z.enum(["words", "lines"]).optional(),
 });
 
+//  Show changes between two versions
 router.get(
   "/:id/diff",
   validate(idParam, "params"),

@@ -6,3 +6,4 @@ dist/
 frontend/AiResumeChecker/.env.local
 frontend/AiResumeChecker/node_modules/
 frontend/AiResumeChecker/dist/
+stripe.exe
