@@ -31,7 +31,7 @@ router.post(
             product_data: {
               name: "Resume Roaster Pro",
             },
-            unit_amount: 1900,
+            unit_amount: 1299,
             recurring: {
               interval: "month",
             },
