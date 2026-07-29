@@ -110,7 +110,7 @@ export function FeaturesSection() {
             key={f.title}
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.5, delay: (i % 3) * 0.05 }}
             className={`group relative rounded-[22px] border border-[var(--border)] shadow-card hover:shadow-hover transition-all duration-300 overflow-hidden ${f.span || ""}`}
             style={{
@@ -200,7 +200,7 @@ export function SectionHeader({ eyebrow, title, sub, center = true }) {
   );
 }
 
-/* ---------------- mini previews ---------------- */
+/* mini previews  */
 
 function ScoreBarsPreview() {
   const bars = [

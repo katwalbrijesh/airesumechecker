@@ -157,7 +157,7 @@ router.post(
     const resume = await loadOwnedResume(req);
     const user = req.user;
 
-    // Enforce free plan limit (2 analyses per 30 days)
+    // free plan limit
     const FREE_LIMIT = 2;
     const now = new Date();
     const cycleStart = user.analysisCycleStart || now;
@@ -184,7 +184,7 @@ router.post(
 
     const { analysis, model, promptTokens, responseTokens } =
       await analyzeResume({
-        rawText: version.rawText,
+        rawText: version.rawText, 
         targetRole: req.body.targetRole,
       });
 
@@ -309,7 +309,7 @@ function applyRewritesToText(rawText, rewrites) {
   for (const r of rewrites) {
     if (!r.original || !r.rewritten) continue;
 
-    // Try exact match first (fastest)
+   
     const idx = result.indexOf(r.original);
     if (idx >= 0) {
       result =
@@ -368,7 +368,9 @@ function looksEmpty(sections) {
   return !hasIdentity && !hasBody;
 }
 
-// POST /api/resumes/:id/rewrite - Apply AI suggestions to create new version
+/**
+ * Apply AI suggestions to create new version
+ */
 router.post(
   "/:id/rewrite",
   validate(idParam, "params"),
@@ -396,12 +398,7 @@ router.post(
 
     const newRaw = applyRewritesToText(baseVersion.rawText, selected);
 
-    // Safety: pre-patch structured sections so V2 never loses bullets
-    const patchedFromBase = patchBulletsInSections(
-      baseVersion.parsedSections,
-      selected
-    );
-
+  
     const reparsed = await parseStructured(newRaw);
     const finalParsed = looksEmpty(reparsed) ? patchedFromBase : reparsed;
 
