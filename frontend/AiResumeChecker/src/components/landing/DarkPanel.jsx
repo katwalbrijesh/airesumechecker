@@ -1,9 +1,29 @@
 import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
 
 const NOISE_DATA_URI =
   "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.9'/></svg>\")";
 
 export function DarkPanel({ className = "", children, glow = true, radius = "rounded-[32px]" }) {
+  const [isResizing, setIsResizing] = useState(false);
+  const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsResizing(true);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        setIsResizing(false);
+      }, 200);
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
   return (
     <div
       className={`relative overflow-hidden isolate ${radius} ${className}`}
@@ -17,7 +37,7 @@ export function DarkPanel({ className = "", children, glow = true, radius = "rou
         }}
       />
 
-      {glow && (
+      {glow && !isResizing && (
         <>
           <motion.div
             className="absolute -top-32 -right-32 w-[520px] h-[520px] rounded-full pointer-events-none"
