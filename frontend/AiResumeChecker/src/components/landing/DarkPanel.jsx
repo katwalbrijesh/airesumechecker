@@ -5,7 +5,10 @@ const NOISE_DATA_URI =
 
 export function DarkPanel({ className = "", children, glow = true, radius = "rounded-[32px]" }) {
   return (
-    <div className={`relative overflow-hidden isolate ${radius} ${className}`}>
+    <div
+      className={`relative overflow-hidden isolate ${radius} ${className}`}
+      style={{ contain: "paint" }}
+    >
       <div
         className="absolute inset-0"
         style={{
