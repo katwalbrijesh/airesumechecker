@@ -88,6 +88,7 @@ router.get(
   "/me",
   requireAuth,
   asyncHandler(async (req, res) => {
+    res.set("Cache-Control", "no-store");
     res.json({ user: req.user });
   })
 );

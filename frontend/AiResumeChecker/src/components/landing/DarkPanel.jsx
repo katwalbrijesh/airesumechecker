@@ -1,34 +1,11 @@
 import { motion } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
 
 const NOISE_DATA_URI =
   "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.9'/></svg>\")";
 
 export function DarkPanel({ className = "", children, glow = true, radius = "rounded-[32px]" }) {
-  const [isResizing, setIsResizing] = useState(false);
-  const timeoutRef = useRef(null);
-
-  useEffect(() => {
-    function handleResize() {
-      setIsResizing(true);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        setIsResizing(false);
-      }, 200);
-    }
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
   return (
-    <div
-      className={`relative overflow-hidden isolate ${radius} ${className}`}
-      style={{ contain: "paint" }}
-    >
+    <div className={`relative overflow-hidden isolate ${radius} ${className}`}>
       <div
         className="absolute inset-0"
         style={{
@@ -37,14 +14,13 @@ export function DarkPanel({ className = "", children, glow = true, radius = "rou
         }}
       />
 
-      {glow && !isResizing && (
+      {glow && (
         <>
           <motion.div
             className="absolute -top-32 -right-32 w-[520px] h-[520px] rounded-full pointer-events-none"
             style={{
               background:
-                "radial-gradient(circle, rgba(168,196,179,0.45) 0%, transparent 70%)",
-              filter: "blur(60px)",
+                "radial-gradient(circle, rgba(168,196,179,0.32) 0%, rgba(168,196,179,0.18) 25%, rgba(168,196,179,0.06) 50%, transparent 75%)",
             }}
             animate={{ x: [0, 30, 0], y: [0, 20, 0], opacity: [0.45, 0.7, 0.45] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
@@ -53,8 +29,7 @@ export function DarkPanel({ className = "", children, glow = true, radius = "rou
             className="absolute -bottom-40 -left-32 w-[460px] h-[460px] rounded-full pointer-events-none"
             style={{
               background:
-                "radial-gradient(circle, rgba(91,124,106,0.55) 0%, transparent 70%)",
-              filter: "blur(60px)",
+                "radial-gradient(circle, rgba(91,124,106,0.4) 0%, rgba(91,124,106,0.22) 25%, rgba(91,124,106,0.08) 50%, transparent 75%)",
             }}
             animate={{ x: [0, -25, 0], y: [0, -30, 0], opacity: [0.4, 0.65, 0.4] }}
             transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
