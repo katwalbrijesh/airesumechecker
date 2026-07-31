@@ -33,8 +33,21 @@ function ProtectedShell() {
   return <AppShell />;
 }
 
+function LandingOrDashboard() {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] text-[var(--ink-muted)] text-sm">
+        Loading...
+      </div>
+    );
+  }
+  if (user) return <Navigate to="/dashboard" replace />;
+  return <Landing />;
+}
+
 export const router = createBrowserRouter([
-  { path: "/", element: <Landing /> },
+  { path: "/", element: <LandingOrDashboard /> },
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
