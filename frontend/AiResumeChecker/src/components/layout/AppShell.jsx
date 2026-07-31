@@ -38,7 +38,7 @@ export function AppShell() {
       <Sidebar />
       <main className="flex-1 px-6 md:px-8 py-6 max-w-[1600px] mx-auto w-full">
         <Topbar onOpenPalette={openPalette} />
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           <motion.div
             key={location.pathname}
             initial={{ opacity: 0, y: 8 }}
