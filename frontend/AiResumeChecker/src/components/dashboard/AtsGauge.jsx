@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 
 const RADIUS = 130;
-const ARC_LENGTH = Math.PI * RADIUS; // length of a half circle
+const ARC_LENGTH = Math.PI * RADIUS;
 
 function statusFor(score) {
   if (score >= 85) return { label: "Excellent", tone: "success" };
@@ -24,7 +24,7 @@ function useCountUp(target, duration = 1100) {
     let raf;
     const tick = (now) => {
       const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 4); // easeOutQuart
+      const eased = 1 - Math.pow(1 - t, 4);
       setValue(Math.round(target * eased));
       if (t < 1) raf = requestAnimationFrame(tick);
     };
@@ -70,7 +70,6 @@ export function AtsGauge({ score = 0, delta = 0 }) {
               </linearGradient>
             </defs>
 
-            {/* Track */}
             <path
               d={`M 20 155 A ${RADIUS} ${RADIUS} 0 0 1 280 155`}
               fill="none"
@@ -79,7 +78,6 @@ export function AtsGauge({ score = 0, delta = 0 }) {
               strokeLinecap="round"
             />
 
-            {/* Value arc */}
             <motion.path
               d={`M 20 155 A ${RADIUS} ${RADIUS} 0 0 1 280 155`}
               fill="none"
@@ -93,7 +91,6 @@ export function AtsGauge({ score = 0, delta = 0 }) {
             />
           </svg>
 
-          {/* Score sitting inside the bowl */}
           <div className="absolute inset-x-0 top-[46%] flex flex-col items-center pointer-events-none">
             <div className="text-[10px] uppercase tracking-[0.16em] text-[var(--ink-muted)] font-semibold">
               ATS Score
@@ -107,7 +104,6 @@ export function AtsGauge({ score = 0, delta = 0 }) {
           </div>
         </div>
 
-        {/* Delta pill — below the gauge */}
         <div
           className={cn(
             "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold tabular",

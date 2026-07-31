@@ -64,6 +64,10 @@
   --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body,
 #root {
@@ -121,7 +125,6 @@ body {
   background: rgba(255, 255, 255, 0.14);
 }
 
-/* PAYMENT SUCCESS PAGE */
 .success-page {
   min-height: 100vh;
   display: flex;

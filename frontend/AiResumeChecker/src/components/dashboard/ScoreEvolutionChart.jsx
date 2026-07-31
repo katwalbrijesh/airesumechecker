@@ -58,7 +58,7 @@ export function ScoreEvolutionChart({ data, currentScore, delta }) {
 
       <div className="h-[180px] -mx-2">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} isAnimationActive={false}>
             <defs>
               <linearGradient id="scoreFill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.25} />
@@ -88,6 +88,7 @@ export function ScoreEvolutionChart({ data, currentScore, delta }) {
               fill="url(#scoreFill)"
               dot={{ r: 4, stroke: "var(--accent)", fill: "var(--surface)", strokeWidth: 2 }}
               activeDot={{ r: 6 }}
+              isAnimationActive={false}
             />
           </AreaChart>
         </ResponsiveContainer>

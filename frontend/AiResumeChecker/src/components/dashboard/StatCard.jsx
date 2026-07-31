@@ -24,7 +24,7 @@ function MiniBars({ data, color }) {
   return (
     <ResponsiveContainer width="100%" height={42}>
       <BarChart data={data} margin={{ top: 6, right: 0, bottom: 0, left: 0 }}>
-        <Bar dataKey="v" fill={color} radius={[3, 3, 0, 0]} barSize={6} />
+        <Bar dataKey="v" fill={color} radius={[3, 3, 0, 0]} barSize={6} isAnimationActive={false} />
       </BarChart>
     </ResponsiveContainer>
   );
